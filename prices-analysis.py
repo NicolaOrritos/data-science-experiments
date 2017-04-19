@@ -87,8 +87,10 @@ plot.legend()
 
 plot.show()"""
 
-"""btc_eur_prices = currency_prices_last_n_days('BTC', 'EUR', 14)
-eth_eur_prices = currency_prices_last_n_days('ETH', 'EUR', 14)
+days = 30
+
+btc_eur_prices = currency_prices_last_n_days('BTC', 'EUR', days)
+eth_eur_prices = currency_prices_last_n_days('ETH', 'EUR', days)
 
 btc_eur_prices_norm = [price / 20 for price in btc_eur_prices]
 
@@ -98,18 +100,13 @@ plot.plot(xs, btc_eur_prices_norm, 'y-', label='BTC / 20')
 plot.plot(xs, eth_eur_prices     , 'b-', label='EUR')
 
 plot.title('Ether vs Bitcoin prices in respect to Euro')
-plot.xlabel('Last two weeks')
+plot.xlabel('Last {0} days'.format(days))
 plot.legend()
 
-plot.show()"""
+plot.show()
 
-
-btc_eur_prices = currency_prices_last_n_days('BTC', 'EUR', 60)
-eth_eur_prices = currency_prices_last_n_days('ETH', 'EUR', 60)
-
-days = [x for x in range(len(btc_eur_prices))]
 
 btc_frame = pd.DataFrame(btc_eur_prices)
 eth_frame = pd.DataFrame(eth_eur_prices)
 
-print(btc_frame.corrwith(eth_frame))
+print('Correlation: {0}'.format(btc_frame.corrwith(eth_frame)[0]))
