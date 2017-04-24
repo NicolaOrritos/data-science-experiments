@@ -96,7 +96,6 @@ plot.legend()
 
 plot.show()"""
 
-print(sys.argv)
 
 """ sys.argv[1] MUST be the string "--days" and sys.argv[2] MUST be a non-negative number """
 
