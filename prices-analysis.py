@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+import sys
 import requests
 import sched, time
 from matplotlib import pyplot as plot
@@ -57,15 +58,23 @@ def currency_prices_last_year(currency = 'ETH', to = 'EUR'):
 
     currencies = 'fsym={0}&tsym={1}'.format(currency, to)
 
-    req  = requests.get(  'https://min-api.cryptocompare.com/data/histoday?'
-                        + currencies
-                        + '&limit=365&aggregate=1&e=CCCAGG')
+    try:
+        req  = requests.get(  'https://min-api.cryptocompare.com/data/histoday?'
+                            + currencies
+                            + '&limit=365&aggregate=1&e=CCCAGG')
 
-    result = req.json()
+        result = req.json()
 
-    list = [float(day['close']) for day in result['Data']]
+        list = [float(day['close']) for day in result['Data']]
+    except ConnectionError:
+        print('Could not connect to "min-api.cryptocompare.com"')
+        list = []
 
     return list
+
+def print_help():
+    print('Usage:')
+    print('  prices-analysis.py --days <DAYS>')
 
 
 """btc_prices = currency_prices_last_year('ETH', 'BTC')
@@ -87,26 +96,37 @@ plot.legend()
 
 plot.show()"""
 
-days = 30
+print(sys.argv)
 
-btc_eur_prices = currency_prices_last_n_days('BTC', 'EUR', days)
-eth_eur_prices = currency_prices_last_n_days('ETH', 'EUR', days)
+""" sys.argv[1] MUST be the string "--days" and sys.argv[2] MUST be a non-negative number """
 
-btc_eur_prices_norm = [price / 20 for price in btc_eur_prices]
+if len(sys.argv) >= 3:
+    if sys.argv[1] == '--days':
+        days = int(sys.argv[2])
 
-xs = [x for x in range(len(btc_eur_prices))]
+        btc_eur_prices = currency_prices_last_n_days('BTC', 'EUR', days)
+        eth_eur_prices = currency_prices_last_n_days('ETH', 'EUR', days)
 
-plot.plot(xs, btc_eur_prices_norm, 'y-', label='BTC / 20')
-plot.plot(xs, eth_eur_prices     , 'b-', label='EUR')
+        btc_eur_prices_norm = [price / 20 for price in btc_eur_prices]
 
-plot.title('Ether vs Bitcoin prices in respect to Euro')
-plot.xlabel('Last {0} days'.format(days))
-plot.legend()
+        xs = [x for x in range(len(btc_eur_prices))]
 
-plot.show()
+        plot.plot(xs, btc_eur_prices_norm, 'y-', label='BTC / 20')
+        plot.plot(xs, eth_eur_prices     , 'b-', label='EUR')
+
+        plot.title('Ether vs Bitcoin prices in respect to Euro')
+        plot.xlabel('Last {0} days'.format(days))
+        plot.legend()
+
+        plot.show()
 
 
-btc_frame = pd.DataFrame(btc_eur_prices)
-eth_frame = pd.DataFrame(eth_eur_prices)
+        btc_frame = pd.DataFrame(btc_eur_prices)
+        eth_frame = pd.DataFrame(eth_eur_prices)
 
-print('Correlation: {0}'.format(btc_frame.corrwith(eth_frame)[0]))
+        print('Correlation: {0}'.format(btc_frame.corrwith(eth_frame)[0]))
+    else:
+        print_help()
+
+else:
+    print_help()
