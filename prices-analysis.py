@@ -106,12 +106,18 @@ if len(sys.argv) >= 3:
         btc_eur_prices = currency_prices_last_n_days('BTC', 'EUR', days)
         eth_eur_prices = currency_prices_last_n_days('ETH', 'EUR', days)
 
-        btc_eur_prices_norm = [price / 20 for price in btc_eur_prices]
+        btc_eur_prices_min  = min(btc_eur_prices)
+        btc_eur_prices_diff = max(btc_eur_prices) - btc_eur_prices_min
+        eth_eur_prices_min  = min(eth_eur_prices)
+        eth_eur_prices_diff = max(eth_eur_prices) - eth_eur_prices_min
+
+        btc_eur_prices_norm = [(price - btc_eur_prices_min) / btc_eur_prices_diff for price in btc_eur_prices]
+        eth_eur_prices_norm = [(price - eth_eur_prices_min) / eth_eur_prices_diff for price in eth_eur_prices]
 
         xs = [x for x in range(len(btc_eur_prices))]
 
-        plot.plot(xs, btc_eur_prices_norm, 'y-', label='BTC / 20')
-        plot.plot(xs, eth_eur_prices     , 'b-', label='EUR')
+        plot.plot(xs, btc_eur_prices_norm, 'y-', label='BTC (normalized)')
+        plot.plot(xs, eth_eur_prices_norm, 'b-', label='ETH (normalized)')
 
         plot.title('Ether vs Bitcoin prices in respect to Euro')
         plot.xlabel('Last {0} days'.format(days))
