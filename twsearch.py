@@ -15,7 +15,7 @@ def tags(hashtags):
 
 
 def simplify_text(text):
-    """ Removes some noise from a given Twitter text """
+    """ Removes some noise from a given tweet text """
 
     # Remove links:
     text = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', text)
@@ -29,9 +29,6 @@ def simplify_text(text):
     text = text.lower()
 
     return text
-
-
-def tokenize_text(text): return text.split()
 
 
 def only_meaningful(words):
@@ -52,10 +49,16 @@ t = Twython(app_key=TWITTER_APP_KEY,
             oauth_token=TWITTER_ACCESS_TOKEN,
             oauth_token_secret=TWITTER_ACCESS_TOKEN_SECRET)
 
-search = t.search(q='#ethereum',
-                  count=100)
+eth_search = t.search(q='#ethereum',
+                      count=1000)
 
-tweets = search['statuses']
+btc_search = t.search(q='#bitcoin',
+                      count=1000)
+
+bkc_search = t.search(q='#blockchain',
+                      count=1000)
+
+tweets = eth_search['statuses'] + btc_search['statuses'] + bkc_search['statuses']
 
 # for tweet in tweets:
 #     tags_list = tags(tweet['entities']['hashtags'])
@@ -75,10 +78,10 @@ def bundle_tweets(tweets):
 
 
 all_tweets = bundle_tweets(tweets)
-words = tokenize_text(simplify_text(all_tweets))
+words = simplify_text(all_tweets).split()
 meaningful_words = only_meaningful(words)
 
 counts = Counter(meaningful_words)
 
-for word, count in counts.most_common(100):
+for word, count in counts.most_common(40):
     print(word, ' (', count, ' times)')
