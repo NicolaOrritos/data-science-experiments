@@ -31,11 +31,13 @@ def get_change(items):
         raise ValueError('Missing item(s) to calculate the change')
 
 
-minutes_interval = 30
-samples = 1200
+currency = 'BTC'
+fiat = 'USD'
+minutes_interval = 15
+samples = 6000
 
 
-prices = get_prices(currency='BTC', to='USD', samples_count=samples)
+prices = get_prices(currency=currency, to=fiat, samples_count=samples)
 
 aggregated = aggregate(prices, count=minutes_interval)
 
@@ -46,8 +48,6 @@ pairs = aggregate(means, count=2)
 pairs = [pair for pair in pairs if len(pair) == 2]
 
 changes = [get_change(pair) for pair in pairs]
-
-percent_changes = [round(change * 100, 2) for change in changes]
 
 # Percent-per-minute change:
 changes_speed = [abs(change / minutes_interval) for change in changes]
@@ -63,13 +63,14 @@ xs = range(len(changes_speed))
 # Create axes
 _, ax = plot.subplots()
 
-plot.xlabel('Last {0} samples'.format(samples))
+plot.xlabel('Last {0} samples'.format(len(price_samples)))
 
-ax1, ax2 = two_scales(ax, xs, changes_speed, price_samples, 'r', 'b')
+ax1, ax2 = two_scales(ax, xs, changes_speed, price_samples, 'r', 'b',
+                      'Prices change speed (percent-points-per-minute)',
+                      'Price ({0})'.format(fiat))
 
-ax1.set_ylabel('Prices change speed')
-ax2.set_ylabel('Price')
+ax1.legend(loc=2)
+ax2.legend()
 
 plot.title('Bitcoin prices change speed - {0} minutes intervals'.format(minutes_interval))
-plot.legend()
 plot.show()
